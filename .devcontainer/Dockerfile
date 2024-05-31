@@ -54,10 +54,10 @@ RUN /bin/bash -c 'source /etc/bash.bashrc && pipx install biobricks && biobricks
     && /bin/bash -c 'source /etc/bash.bashrc && biobricks configure --bblib=/mnt/biobricks --token=${BIOBRICKS_TOKEN} --interactive=False'
 
 # Set up AWS credentials for vscode user
-ARG AWS_ACCESS_KEY_ID
-ARG AWS_SECRET_ACCESS_KEY
-RUN mkdir -p ~/.aws \
-    && echo -e "[default]\naws_access_key_id = ${AWS_ACCESS_KEY_ID}\naws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" > ~/.aws/credentials
+# ARG AWS_ACCESS_KEY_ID
+# ARG AWS_SECRET_ACCESS_KEY
+# RUN mkdir -p ~/.aws \
+#     && echo -e "[default]\naws_access_key_id = ${AWS_ACCESS_KEY_ID}\naws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" > ~/.aws/credentials
 
 # Switch back to root user to complete setup
 USER root
