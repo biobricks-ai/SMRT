@@ -18,7 +18,9 @@
     },
     "extensions": [
         "ms-python.python",
-        "ms-toolsai.jupyter"
+        "ms-toolsai.jupyter",
+        "ms-vsliveshare.vsliveshare",  // Live Share extension
+        "github.copilot"  // GitHub Copilot extension
     ],
     "remoteUser": "vscode"
 }
