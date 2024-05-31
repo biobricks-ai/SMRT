@@ -42,6 +42,13 @@ RUN echo 'export PATH="$PATH:$HOME/.local/bin"' >> /etc/bash.bashrc \
 
 # Accept build argument for BIOBRICKS_TOKEN
 ARG BIOBRICKS_TOKEN
+ENV BIOBRICKS_TOKEN=${BIOBRICKS_TOKEN}
+
+# Install biobricks
+RUN /bin/bash -c 'source /etc/bash.bashrc && pipx install biobricks'
+
+# Verify biobricks installation
+RUN /bin/bash -c 'source /etc/bash.bashrc && biobricks version'
 
 # Configure biobricks using the build argument
-RUN /bin/bash -c 'source /etc/bash.bashrc && pipx install biobricks && biobricks configure --bblib /mnt/biobricks --token $BIOBRICKS_TOKEN --interactive False'
+RUN /bin/bash -c 'source /etc/bash.bashrc && biobricks configure --bblib /mnt/biobricks --token ${BIOBRICKS_TOKEN} --interactive False'
