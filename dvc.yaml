@@ -7,11 +7,11 @@ stages:
       - status.txt
       - code/01_download.py
     outs:
-      - download/
+      - download/smrt_data.zip
   process:
     cmd: python code/02_process.py
     deps:
-      - download/
+      - download/smrt_data.zip
       - code/02_process.py
     outs:
       - brick/

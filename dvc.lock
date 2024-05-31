@@ -2,39 +2,36 @@ schema: '2.0'
 stages:
   status:
     cmd: python code/00_status.py
-    deps:
-    - path: code/00_status.py
-      hash: md5
-      md5: 95a09d63c054eb185a1408771f4ee8a3
-      size: 43
   download:
     cmd: python code/01_download.py
     deps:
     - path: code/01_download.py
       hash: md5
-      md5: f82fd5fc2597b90ed411991180e4ac30
-      size: 195
-    outs:
-    - path: download/
+      md5: 03b63774ca433e50ef222f35b826943a
+      size: 555
+    - path: status.txt
       hash: md5
-      md5: d751713988987e9331980363e24189ce.dir
-      size: 0
-      nfiles: 0
+      md5: 386705179ebe331fa00c2cb2d510ad5a
+      size: 167822
+    outs:
+    - path: download/smrt_data.zip
+      hash: md5
+      md5: 06a13c7cf182b8be650feec1e620804b
+      size: 1007003829
   process:
     cmd: python code/02_process.py
     deps:
     - path: code/02_process.py
       hash: md5
-      md5: c520d6a17cb1fb7e47155d606ce80701
-      size: 197
-    - path: download/
+      md5: 5e746adccd6d4f20fa5c5f7cdcb34328
+      size: 655
+    - path: download/smrt_data.zip
       hash: md5
-      md5: d751713988987e9331980363e24189ce.dir
-      size: 0
-      nfiles: 0
+      md5: 06a13c7cf182b8be650feec1e620804b
+      size: 1007003829
     outs:
     - path: brick/
       hash: md5
-      md5: d751713988987e9331980363e24189ce.dir
-      size: 0
-      nfiles: 0
+      md5: c66ba598b117d1c2c28a1cc4754cfe60.dir
+      size: 6655466
+      nfiles: 1
