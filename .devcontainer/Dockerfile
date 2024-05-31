@@ -20,38 +20,44 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     curl \
     gnupg \
-    python3-venv
+    python3-venv \
+    awscli
 
 # Install pipx and biobricks
 RUN python3 -m pip install --user pipx \
     && python3 -m pipx ensurepath
 
-# Create /mnt/biobricks directory
-RUN mkdir -p /mnt/biobricks
+# Create /mnt/biobricks directory and set permissions
+RUN mkdir -p /mnt/biobricks/biobricks-ai \
+    && chown -R vscode:vscode /mnt/biobricks
 
 # Install Python dependencies
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install -r /tmp/requirements.txt
 
-# Set up the workspace
-WORKDIR /workspace
-
-# Add the following lines to the shell profile to include pipx binaries for all users
+# Add pipx binaries to the PATH for all users
 RUN echo 'export PATH="$PATH:$HOME/.local/bin"' >> /etc/bash.bashrc \
     && echo 'export PATH="$PATH:$HOME/.local/bin"' >> /home/vscode/.bashrc
+
+# Switch to vscode user to perform user-specific installations
+USER vscode
 
 # Accept build argument for BIOBRICKS_TOKEN
 ARG BIOBRICKS_TOKEN
 ENV BIOBRICKS_TOKEN=${BIOBRICKS_TOKEN}
 
-# Install biobricks
-RUN /bin/bash -c 'source /etc/bash.bashrc && pipx install biobricks'
+# Install biobricks and configure it
+RUN /bin/bash -c 'source /etc/bash.bashrc && pipx install biobricks && biobricks version' \
+    && /bin/bash -c 'if [ -z "$BIOBRICKS_TOKEN" ] || [ ${#BIOBRICKS_TOKEN} -lt 5 ]; then echo "BIOBRICKS_TOKEN is not set or is too short (less than 5 characters)"; exit 1; fi' \
+    && mkdir -p ~/.biobricks \
+    && echo -e "{ \"BBLIB\": \"/mnt/biobricks\", \"TOKEN\": \"$BIOBRICKS_TOKEN\" }" > ~/.biobricks/config.json \
+    && /bin/bash -c 'source /etc/bash.bashrc && biobricks configure --bblib=/mnt/biobricks --token=${BIOBRICKS_TOKEN} --interactive=False'
 
-# Verify biobricks installation
-RUN /bin/bash -c 'source /etc/bash.bashrc && biobricks version'
+# Set up AWS credentials for vscode user
+ARG AWS_ACCESS_KEY_ID
+ARG AWS_SECRET_ACCESS_KEY
+RUN mkdir -p ~/.aws \
+    && echo -e "[default]\naws_access_key_id = ${AWS_ACCESS_KEY_ID}\naws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" > ~/.aws/credentials
 
-# Check if BIOBRICKS_TOKEN is set and has at least 5 characters
-RUN /bin/bash -c 'if [ -z "$BIOBRICKS_TOKEN" ] || [ ${#BIOBRICKS_TOKEN} -lt 5 ]; then echo "BIOBRICKS_TOKEN is not set or is too short (less than 5 characters)"; exit 1; fi'
-
-# Configure biobricks using the build argument
-RUN /bin/bash -c 'source /etc/bash.bashrc && biobricks configure --bblib=/mnt/biobricks --token=${BIOBRICKS_TOKEN} --interactive=False'
+# Switch back to root user to complete setup
+USER root
