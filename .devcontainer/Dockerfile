@@ -31,16 +31,16 @@ RUN python3 -m pip install --user pipx \
 RUN mkdir -p /mnt/biobricks/biobricks-ai \
     && chown -R vscode:vscode /mnt/biobricks
 
-# Install Python dependencies
-COPY requirements.txt /tmp/requirements.txt
-RUN pip install -r /tmp/requirements.txt
-
 # Add pipx binaries to the PATH for all users
 RUN echo 'export PATH="$PATH:$HOME/.local/bin"' >> /etc/bash.bashrc \
     && echo 'export PATH="$PATH:$HOME/.local/bin"' >> /home/vscode/.bashrc
 
 # Switch to vscode user to perform user-specific installations
 USER vscode
+
+# Install Python dependencies
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install -r /tmp/requirements.txt
 
 # Accept build argument for BIOBRICKS_TOKEN
 ARG BIOBRICKS_TOKEN
@@ -49,8 +49,6 @@ ENV BIOBRICKS_TOKEN=${BIOBRICKS_TOKEN}
 # Install biobricks and configure it
 RUN /bin/bash -c 'source /etc/bash.bashrc && pipx install biobricks && biobricks version' \
     && /bin/bash -c 'if [ -z "$BIOBRICKS_TOKEN" ] || [ ${#BIOBRICKS_TOKEN} -lt 5 ]; then echo "BIOBRICKS_TOKEN is not set or is too short (less than 5 characters)"; exit 1; fi' \
-    && mkdir -p ~/.biobricks \
-    && echo -e "{ \"BBLIB\": \"/mnt/biobricks\", \"TOKEN\": \"$BIOBRICKS_TOKEN\" }" > ~/.biobricks/config.json \
     && /bin/bash -c 'source /etc/bash.bashrc && biobricks configure --bblib=/mnt/biobricks --token=${BIOBRICKS_TOKEN} --interactive=False'
 
 # Set up AWS credentials for vscode user
