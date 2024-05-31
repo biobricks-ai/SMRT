@@ -55,4 +55,4 @@ WORKDIR /workspace
 RUN echo 'export PATH="$PATH:$HOME/.local/bin"' >> /home/vscode/.bashrc
 
 # Configure biobricks with a GitHub secret token
-RUN echo 'biobricks configure --bblib /mnt/biobricks --token $GITHUB_TOKEN' >> /home/vscode/.bashrc
+RUN echo 'biobricks configure --bblib /mnt/biobricks --token $BIOBRICKS_TOKEN' >> /home/vscode/.bashrc
