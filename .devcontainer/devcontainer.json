@@ -4,7 +4,7 @@
         "dockerfile": "Dockerfile",
         "context": "..",
         "args": {
-            "BIOBRICKS_TOKEN": "${{ secrets.BIOBRICKS_TOKEN }}"
+            "BIOBRICKS_TOKEN": "${localEnv.BIOBRICKS_TOKEN}"
         }
     },
     "features": {
