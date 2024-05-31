@@ -2,6 +2,7 @@
     "name": "SMRT Development Container",
     "build": {
         "dockerfile": "Dockerfile",
+        "context": "..",
         "buildArgs": {
             "BIOBRICKS_TOKEN": "${{ secrets.BIOBRICKS_TOKEN }}"
         }
