@@ -39,23 +39,19 @@ RUN echo 'export PATH="$PATH:$HOME/.local/bin"' >> /etc/bash.bashrc \
 USER vscode
 
 # Install Python dependencies
-COPY requirements.txt /tmp/requirements.txt
+COPY .devcontainer/requirements.txt /tmp/requirements.txt
 RUN pip install -r /tmp/requirements.txt
 
-# Accept build argument for BIOBRICKS_TOKEN
+# Accept build argument for BIOBRICKS_TOKEN & use the public token if not provided
 ARG BIOBRICKS_TOKEN
-ENV BIOBRICKS_TOKEN=${BIOBRICKS_TOKEN}
+ENV DEFAULT_TOKEN=VQF6Q2U-NKktZ31ioVYa9w
+ENV BIOBRICKS_TOKEN=${BIOBRICKS_TOKEN:-${DEFAULT_TOKEN}}
+RUN if [ ${#BIOBRICKS_TOKEN} -lt 5 ]; then export BIOBRICKS_TOKEN=$DEFAULT_TOKEN; fi
 
 # Install biobricks and configure it
 RUN /bin/bash -c 'source /etc/bash.bashrc && pipx install biobricks && biobricks version' \
     && /bin/bash -c 'if [ -z "$BIOBRICKS_TOKEN" ] || [ ${#BIOBRICKS_TOKEN} -lt 5 ]; then echo "BIOBRICKS_TOKEN is not set or is too short (less than 5 characters)"; exit 1; fi' \
     && /bin/bash -c 'source /etc/bash.bashrc && biobricks configure --bblib=/mnt/biobricks --token=${BIOBRICKS_TOKEN} --interactive=False'
-
-# Set up AWS credentials for vscode user
-# ARG AWS_ACCESS_KEY_ID
-# ARG AWS_SECRET_ACCESS_KEY
-# RUN mkdir -p ~/.aws \
-#     && echo -e "[default]\naws_access_key_id = ${AWS_ACCESS_KEY_ID}\naws_secret_access_key = ${AWS_SECRET_ACCESS_KEY}" > ~/.aws/credentials
 
 # Switch back to root user to complete setup
 USER root
